@@ -20,4 +20,61 @@ $(function () {
   // attribute of each time-block be used to do this?
   //
   // TODO: Add code to display the current date in the header of the page.
+
+
+// Set the date at the top of the page
+$("#currentDay").text(dayjs().format("dddd, MMMM D YYYY"));
+for (let index = 8; index < 18; index++) {
+  var timeparent = $('<div>')
+  timeparent.addClass ('row time-block') .attr('id', 'hour-'+ index)
+  var hourchild = $('<div>')
+  .addClass ('col-2 col-md-1 hour text-center py-3') 
+  .text(dayjs().hour(index).format('h A'))
+  var textarea = $('<textarea>')
+  textarea.addClass ('col-8 col-md-10 description') 
+  var button = $('<button>')
+  button.addClass (' btn saveBtn col-2 col-md-1') 
+  .html (' <i class="fas fa-save" aria-hidden="true"></i>')
+timeparent.append(hourchild) .append(textarea) .append(button)
+$('.container-lg') .append(timeparent)
+}
+// Set the status of each time-block
+$(".time-block").each(function() {
+  var currentTime = dayjs().hour();
+  var timeBlock = parseInt($(this).attr("id").split("-")[1]);
+  console.log(timeBlock)
+  console.log($(this).attr('id'))
+  if (timeBlock < currentTime) {
+    $(this).addClass("past");
+  } else if (timeBlock === currentTime) {
+    $(this).addClass("present");
+  } else {
+    $(this).addClass("future");
+  }
+});
+
+// Load any saved data from localStorage
+$(".description").each(function() {
+  var timeBlock = $(this).parent().attr("id");
+  var history = JSON.parse(localStorage.getItem('history'))
+  if (history) {
+    for (let index = 0; index < history.length; index++) {
+      const element = history[index];
+    if (timeBlock == element.time) {
+      $(this).val(element.description)
+    }  
+    }
+  }
+});
+
+// Save the data to localStorage on click
+$(".saveBtn").on("click", function() {
+  var timeBlock = $(this).parent().attr("id");
+  var description = $(this).siblings(".description").val();
+  var savedData = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : []
+  savedData.push({timeBlock,description})
+  localStorage.setItem(JSON.stringify(savedData));
+
+});
+
 });
